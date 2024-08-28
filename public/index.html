@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" x-data="pricePlanApp()">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price Plan App</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    .container {
+      width: 80%;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    h2 {
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    input[type="text"], input[type="number"] {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    p {
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Create Price Plan -->
+    <section>
+      <h2>Create Price Plan</h2>
+      <form @submit.prevent="createPricePlan">
+        <input type="text" x-model="newPlan.name" placeholder="Plan Name" required />
+        <input type="number" x-model="newPlan.sms_cost" placeholder="SMS Cost" step="0.01" required />
+        <input type="number" x-model="newPlan.call_cost" placeholder="Call Cost" step="0.01" required />
+        <button type="submit">Create Plan</button>
+      </form>
+    </section>
+
+    <!-- Update Price Plan -->
+    <section>
+      <h2>Update Price Plan</h2>
+      <form @submit.prevent="updatePricePlan">
+        <input type="text" x-model="updatePlan.name" placeholder="Plan Name" required />
+        <input type="number" x-model="updatePlan.sms_cost" placeholder="SMS Cost" step="0.01" required />
+        <input type="number" x-model="updatePlan.call_cost" placeholder="Call Cost" step="0.01" required />
+        <button type="submit">Update Plan</button>
+      </form>
+    </section>
+
+    <!-- Delete Price Plan -->
+    <section>
+      <h2>Delete Price Plan</h2>
+      <form @submit.prevent="deletePricePlan">
+        <input type="number" x-model="deletePlan.id" placeholder="Plan ID" required />
+        <button type="submit">Delete Plan</button>
+      </form>
+    </section>
+
+    <!-- Display Price Plans -->
+    <section>
+      <h2>Price Plans</h2>
+      <button @click="fetchPricePlans">Refresh Plans</button>
+      <ul>
+        <template x-for="plan in pricePlans" :key="plan.id">
+          <li>
+            <strong x-text="plan.plan_name"></strong> - SMS Cost: $<span x-text="plan.sms_price"></span>, Call Cost: $<span x-text="plan.call_price"></span>
+          </li>
+        </template>
+      </ul>
+    </section>
+
+    <!-- Calculate Phone Bill -->
+    <section>
+      <h2>Calculate Phone Bill</h2>
+      <form @submit.prevent="calculatePhoneBill">
+        <input type="text" x-model="phoneBill.price_plan" placeholder="Price Plan" required />
+        <input type="text" x-model="phoneBill.actions" placeholder="Actions (e.g., call, sms, call)" required />
+        <button type="submit">Calculate Bill</button>
+      </form>
+      <p x-show="bill !== null">Total Cost: $<span x-text="bill"></span></p>
+    </section>
+  </div>
+
+  <script>
+    function pricePlanApp() {
+      return {
+        newPlan: {
+          name: '',
+          sms_cost: '',
+          call_cost: ''
+        },
+        updatePlan: {
+          name: '',
+          sms_cost: '',
+          call_cost: ''
+        },
+        deletePlan: {
+          id: ''
+        },
+        phoneBill: {
+          price_plan: '',
+          actions: ''
+        },
+        bill: null,
+        pricePlans: [],
+
+        async createPricePlan() {
+          try {
+            await axios.post('/api/price_plan/create', this.newPlan);
+            alert('Price plan created successfully');
+            this.newPlan = { name: '', sms_cost: '', call_cost: '' }; // Reset form
+            this.fetchPricePlans(); // Refresh the list of price plans
+          } catch (error) {
+            console.error('Error creating price plan:', error);
+          }
+        },
+
+        async updatePricePlan() {
+          try {
+            await axios.post('/api/price_plan/update', this.updatePlan);
+            alert('Price plan updated successfully');
+            this.updatePlan = { name: '', sms_cost: '', call_cost: '' }; // Reset form
+            this.fetchPricePlans(); // Refresh the list of price plans
+          } catch (error) {
+            console.error('Error updating price plan:', error);
+          }
+        },
+
+        async deletePricePlan() {
+          try {
+            await axios.post('/api/price_plan/delete', this.deletePlan);
+            alert('Price plan deleted successfully');
+            this.deletePlan = { id: '' }; // Reset form
+            this.fetchPricePlans(); // Refresh the list of price plans
+          } catch (error) {
+            console.error('Error deleting price plan:', error);
+          }
+        },
+
+        async calculatePhoneBill() {
+          try {
+            const response = await axios.post('/api/phonebill/', this.phoneBill);
+            this.bill = response.data.total;
+          } catch (error) {
+            console.error('Error calculating phone bill:', error);
+          }
+        },
+
+        async fetchPricePlans() {
+          try {
+            const response = await axios.get('/api/price_plans/');
+            this.pricePlans = response.data;
+          } catch (error) {
+            console.error('Error fetching price plans:', error);
+          }
+        },
+
+        init() {
+          this.fetchPricePlans(); // Fetch price plans on initialization
+        }
+      }
+    }
+  </script>
+</body>
+</html>
