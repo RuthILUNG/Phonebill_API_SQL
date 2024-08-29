@@ -25,11 +25,18 @@
   "contributors": [],
   "scripts": {
     "dev": "",
-    "test": ""
+    "test": "mocha"
   },
   "dependencies": {
+    "chai": "^5.1.1",
     "express": "^4.19.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "mocha": "^10.7.3",
+    "supertest": "^7.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
 }
