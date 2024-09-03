@@ -1,3 +1,4 @@
+import request from 'supertest';
 import express from 'express';
 import * as sqlite from 'sqlite';
 import sqlite3 from 'sqlite3';

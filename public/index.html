@@ -108,9 +108,10 @@
       <ul>
         <template x-for="plan in pricePlans" :key="plan.id">
           <li>
-            <strong x-text="plan.plan_name"></strong> - SMS Cost: $<span x-text="plan.sms_price"></span>, Call Cost: $<span x-text="plan.call_price"></span>
+            <strong>ID: <span x-text="plan.id"></span></strong> - <strong x-text="plan.plan_name"></strong> - SMS Cost: $<span x-text="plan.sms_price"></span>, Call Cost: $<span x-text="plan.call_price"></span>
           </li>
         </template>
+        
       </ul>
     </section>
 
